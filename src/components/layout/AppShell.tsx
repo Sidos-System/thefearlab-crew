@@ -1,8 +1,20 @@
 "use client";
 
-import Sidebar from "@/components/navigation/Sidebar";
-import BottomNavigation from "@/components/navigation/BottomNavigation";
+import Image from "next/image";
+import {
+  Bell,
+  CalendarDays,
+  Menu,
+  Search as SearchIcon,
+} from "lucide-react";
+import AuthGuard from "@/components/auth/AuthGuard";
 import LogoutButton from "@/components/auth/LogoutButton";
+import BottomNavigation from "@/components/navigation/BottomNavigation";
+import Sidebar from "@/components/navigation/Sidebar";
+import Avatar from "@/components/ui/Avatar";
+import Button from "@/components/ui/Button";
+import Search from "@/components/ui/Search";
+import useProfile from "@/hooks/useProfile";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -16,98 +28,164 @@ export default function AppShell({
   subtitle,
 }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <AuthGuard>
+      <AuthenticatedShell
+        title={title}
+        subtitle={subtitle}
+      >
+        {children}
+      </AuthenticatedShell>
+    </AuthGuard>
+  );
+}
 
-      {/* Desktop */}
-      <div className="hidden min-h-screen lg:flex">
+function AuthenticatedShell({
+  children,
+  title,
+  subtitle,
+}: AppShellProps) {
+  const { profile } = useProfile();
+  const profileName = profile?.full_name ?? "Crew";
+  const profileStatus = profile?.online ? "online" : "offline";
 
-        <aside className="w-72 border-r border-zinc-800 bg-zinc-950">
-
-          <div className="border-b border-zinc-800 p-8">
-
-            <h1 className="text-3xl font-bold text-red-600">
-              THE FEAR LAB
-            </h1>
-
-            <p className="mt-2 text-sm text-zinc-500">
-              Crew Platform
-            </p>
-
-          </div>
-
+  return (
+    <div className="min-h-screen bg-background text-white">
+      <div className="hidden lg:flex">
+        <aside className="w-72 shrink-0 border-r border-border-soft bg-surface-1">
           <Sidebar />
-
         </aside>
 
-        <main className="flex-1 overflow-y-auto">
-
-          {(title || subtitle) && (
-            <header className="flex items-center justify-between border-b border-zinc-800 px-12 py-8">
-
-              <div>
-
+        <main className="max-h-screen flex-1 overflow-y-auto">
+          <header className="sticky top-0 z-30 border-b border-border-soft bg-background/82 backdrop-blur-2xl">
+            <div className="mx-auto flex h-24 max-w-[1800px] items-center justify-between gap-8 px-8 xl:px-10">
+              <div className="min-w-0">
                 {title && (
-                  <h1 className="text-5xl font-bold">
+                  <h1 className="truncate text-3xl font-black tracking-tight">
                     {title}
                   </h1>
                 )}
 
                 {subtitle && (
-                  <p className="mt-2 text-xl text-zinc-400">
+                  <p className="mt-1 text-sm text-text-secondary">
                     {subtitle}
                   </p>
                 )}
-
               </div>
 
-              <LogoutButton />
+              <div className="flex flex-1 items-center justify-end gap-3">
+                <Search className="w-full max-w-xl" />
 
-            </header>
-          )}
+                <Button
+                  aria-label="Suche"
+                  className="xl:hidden"
+                  size="icon"
+                  variant="secondary"
+                >
+                  <SearchIcon size={18} />
+                </Button>
 
-          <div className="p-12">
+                <Button
+                  aria-label="Benachrichtigungen"
+                  size="icon"
+                  variant="secondary"
+                >
+                  <Bell size={18} />
+                </Button>
+
+                <Button
+                  aria-label="Kalender"
+                  size="icon"
+                  variant="secondary"
+                >
+                  <CalendarDays size={18} />
+                </Button>
+
+                <Avatar
+                  name={profileName}
+                  size="md"
+                  status={profileStatus}
+                />
+
+                <LogoutButton />
+              </div>
+            </div>
+          </header>
+
+          <div className="mx-auto max-w-[1800px] p-6 xl:p-10">
             {children}
           </div>
-
         </main>
-
       </div>
 
-      {/* Handy / Tablet */}
-      <div className="min-h-screen pb-24 lg:hidden">
+      <div className="min-h-screen pb-28 lg:hidden">
+        <header className="sticky top-0 z-30 border-b border-border-soft bg-background/88 px-4 py-4 backdrop-blur-2xl">
+          <div className="flex items-center justify-between gap-3">
+            <Button
+              aria-label="Menu"
+              size="icon"
+              variant="secondary"
+            >
+              <Menu size={19} />
+            </Button>
 
-        {(title || subtitle) && (
-          <header className="flex items-center justify-between border-b border-zinc-800 px-6 py-6">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="relative h-10 w-10 overflow-hidden rounded-[18px] bg-surface-raised ring-1 ring-white/10">
+                <Image
+                  alt="THE FEAR LAB"
+                  className="object-cover"
+                  fill
+                  sizes="40px"
+                  src="/thefearlab-logo.png"
+                />
+              </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-black">THE FEAR LAB</p>
+                {title && (
+                  <p className="truncate text-xs text-text-muted">
+                    {title}
+                  </p>
+                )}
+              </div>
+            </div>
 
-            <div>
+            <div className="flex items-center gap-2">
+              <Button
+                aria-label="Benachrichtigungen"
+                size="icon"
+                variant="secondary"
+              >
+                <Bell size={18} />
+              </Button>
+              <Avatar
+                name={profileName}
+                size="sm"
+                status={profileStatus}
+              />
+            </div>
+          </div>
+        </header>
 
+        <main className="px-4 py-5">
+          {(title || subtitle) && (
+            <div className="mb-5">
               {title && (
-                <h1 className="text-4xl font-bold">
+                <h1 className="text-3xl font-black tracking-tight">
                   {title}
                 </h1>
               )}
-
               {subtitle && (
-                <p className="mt-2 text-base text-zinc-400">
+                <p className="mt-1 text-sm text-text-secondary">
                   {subtitle}
                 </p>
               )}
-
             </div>
+          )}
 
-            <LogoutButton />
-
-          </header>
-        )}
-
-        <main className="p-6">
           {children}
         </main>
 
         <BottomNavigation />
-
       </div>
-
     </div>
   );
 }

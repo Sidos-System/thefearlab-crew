@@ -1,46 +1,53 @@
+"use client";
+
 import AppShell from "@/components/layout/AppShell";
+import AddMemberButton from "@/components/team/AddMemberButton";
 import TeamMemberCard from "@/components/team/TeamMemberCard";
 import TeamSearch from "@/components/team/TeamSearch";
-import AddMemberButton from "@/components/team/AddMemberButton";
+import EmptyState from "@/components/ui/EmptyState";
+import Skeleton from "@/components/ui/Skeleton";
+import { useProfiles } from "@/hooks/usePlatformData";
 
 export default function TeamPage() {
+  const {
+    data: profiles,
+    loading,
+  } = useProfiles();
+
   return (
     <AppShell
       title="Team"
       subtitle="Crewverwaltung"
     >
       <div className="space-y-8">
-
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-
           <TeamSearch />
-
           <AddMemberButton />
-
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-
-          <TeamMemberCard
-            name="Maurice"
-            role="Administrator"
-            status="Einsatzbereit"
+        {loading ? (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <Skeleton className="h-52" />
+            <Skeleton className="h-52" />
+            <Skeleton className="h-52" />
+          </div>
+        ) : profiles.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {profiles.map((profile) => (
+              <TeamMemberCard
+                key={profile.id}
+                name={profile.fullName}
+                role={profile.role}
+                status={profile.status}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            text="In Supabase sind noch keine Crewprofile vorhanden."
+            title="Keine Crewprofile"
           />
-
-          <TeamMemberCard
-            name="Chris"
-            role="Security"
-            status="Pause"
-          />
-
-          <TeamMemberCard
-            name="Malik"
-            role="Technik"
-            status="Einsatzbereit"
-          />
-
-        </div>
-
+        )}
       </div>
     </AppShell>
   );

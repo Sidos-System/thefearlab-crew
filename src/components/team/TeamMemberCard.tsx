@@ -1,3 +1,7 @@
+import { ShieldCheck } from "lucide-react";
+import Avatar from "@/components/ui/Avatar";
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
 import RoleBadge from "./RoleBadge";
 
 type TeamMemberCardProps = {
@@ -11,44 +15,63 @@ export default function TeamMemberCard({
   role,
   status,
 }: TeamMemberCardProps) {
-  const statusColor =
-    status === "Einsatzbereit"
-      ? "text-green-500"
-      : status === "Pause"
-      ? "text-yellow-500"
-      : "text-red-500";
+  const statusLabel = getStatusLabel(status);
+  const statusVariant = status === "online" || status === "Einsatzbereit"
+    ? "success"
+    : status === "busy" || status === "break" || status === "Pause"
+      ? "warning"
+      : "default";
+  const onlineStatus = status === "online" || status === "Einsatzbereit"
+    ? "online"
+    : status === "busy" || status === "break" || status === "Pause"
+      ? "busy"
+      : "offline";
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 transition duration-300 hover:border-red-700">
+    <Card className="h-full">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-4">
+          <Avatar
+            name={name}
+            size="lg"
+            status={onlineStatus}
+          />
 
-      <div className="flex justify-between">
-
-        <div className="flex gap-4">
-
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-700 text-2xl font-bold">
-            {name.charAt(0)}
-          </div>
-
-          <div>
-
-            <h2 className="text-xl font-bold">
+          <div className="min-w-0">
+            <h2 className="truncate text-xl font-black">
               {name}
             </h2>
-
             <div className="mt-2">
               <RoleBadge role={role} />
             </div>
-
-            <p className={`mt-3 font-semibold ${statusColor}`}>
-              ● {status}
-            </p>
-
           </div>
-
         </div>
 
+        <div className="rounded-[18px] bg-surface-raised p-3 text-text-secondary">
+          <ShieldCheck size={20} />
+        </div>
       </div>
 
-    </div>
+      <div className="mt-6 flex items-center justify-between gap-3 border-t border-border-soft pt-5">
+        <span className="text-sm text-text-muted">Status</span>
+        <Badge variant={statusVariant}>
+          {statusLabel}
+        </Badge>
+      </div>
+    </Card>
   );
+}
+
+function getStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    online: "Online",
+    busy: "Beschäftigt",
+    on_duty: "Im Einsatz",
+    break: "Pause",
+    offline: "Offline",
+    sick: "Krank",
+    vacation: "Urlaub",
+  };
+
+  return labels[status] ?? status;
 }

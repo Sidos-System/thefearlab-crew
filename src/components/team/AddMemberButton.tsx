@@ -1,7 +1,11 @@
+import { UserPlus } from "lucide-react";
+import Button from "@/components/ui/Button";
+
 export default function AddMemberButton() {
   return (
-    <button className="rounded-xl bg-red-700 px-6 py-4 font-semibold transition hover:bg-red-800">
-      + Crewmitglied hinzufügen
-    </button>
+    <Button disabled>
+      <UserPlus size={18} />
+      Crewmitglied hinzufügen
+    </Button>
   );
 }

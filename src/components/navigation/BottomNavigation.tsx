@@ -2,35 +2,36 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { bottomNavigationItems } from "@/config/navigation";
+import { cn } from "@/lib/utils";
 
 export default function BottomNavigation() {
   const pathname = usePathname();
 
-  const items = [
-    { href: "/dashboard", icon: "🏠", label: "Home" },
-    { href: "/team", icon: "👥", label: "Team" },
-    { href: "/tasks", icon: "✅", label: "Aufgaben" },
-    { href: "/chat", icon: "💬", label: "Chat" },
-    { href: "/settings", icon: "⚙️", label: "Mehr" },
-  ];
-
   return (
-    <nav className="fixed bottom-0 left-0 right-0 border-t border-zinc-800 bg-zinc-950">
-      <div className="mx-auto flex max-w-md justify-around py-3">
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`flex flex-col items-center text-xs transition ${
-              pathname === item.href
-                ? "text-red-600"
-                : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            <span className="text-2xl">{item.icon}</span>
-            <span>{item.label}</span>
-          </Link>
-        ))}
+    <nav className="fixed bottom-4 left-4 right-4 z-40 lg:hidden">
+      <div className="mx-auto grid max-w-md grid-cols-5 rounded-[24px] border border-white/10 bg-surface-1/88 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.48)] backdrop-blur-2xl">
+        {bottomNavigationItems.map((item) => {
+          const Icon = item.icon;
+          const active =
+            pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+          return (
+            <Link
+              key={item.href}
+              className={cn(
+                "flex h-14 flex-col items-center justify-center gap-1 rounded-[18px] text-[11px] font-semibold transition duration-200",
+                active
+                  ? "bg-white text-background"
+                  : "text-text-muted hover:bg-surface-3 hover:text-white",
+              )}
+              href={item.href}
+            >
+              <Icon size={19} />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </div>
     </nav>
   );

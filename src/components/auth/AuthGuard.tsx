@@ -34,8 +34,8 @@ export default function AuthGuard({
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
-        <p className="text-lg">Lade...</p>
+      <main className="flex min-h-screen items-center justify-center bg-background text-white">
+        <p className="text-sm font-semibold text-text-secondary">Lade...</p>
       </main>
     );
   }
