@@ -1,9 +1,15 @@
 import { Plus } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-export default function AddTaskButton() {
+type AddTaskButtonProps = {
+  onClick: () => void;
+};
+
+export default function AddTaskButton({
+  onClick,
+}: AddTaskButtonProps) {
   return (
-    <Button disabled>
+    <Button onClick={onClick}>
       <Plus size={18} />
       Neue Aufgabe
     </Button>

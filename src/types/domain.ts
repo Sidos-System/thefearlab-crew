@@ -35,6 +35,7 @@ export type PlatformDocument = {
   category: string | null;
   version: string | null;
   fileUrl: string | null;
+  storagePath: string | null;
   updatedAt: string | null;
 };
 
@@ -66,6 +67,32 @@ export type PlatformEvent = {
   year: number | null;
   startsAt: string | null;
   endsAt: string | null;
+};
+
+export type PlatformEmergencyLocation = {
+  id: string;
+  name: string;
+  description: string | null;
+};
+
+export type PlatformEmergency = {
+  id: string;
+  locationId: string | null;
+  locationName: string | null;
+  reporterId: string | null;
+  status: string;
+  note: string | null;
+  active: boolean;
+  createdAt: string | null;
+};
+
+export type PlatformAuditLog = {
+  id: string;
+  actorId: string | null;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  createdAt: string | null;
 };
 
 export type DashboardStats = {

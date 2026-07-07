@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import LogoutButton from "@/components/auth/LogoutButton";
+import EmergencyButton from "@/components/emergency/EmergencyButton";
 import BottomNavigation from "@/components/navigation/BottomNavigation";
 import Sidebar from "@/components/navigation/Sidebar";
 import Avatar from "@/components/ui/Avatar";
@@ -185,6 +186,7 @@ function AuthenticatedShell({
         </main>
 
         <BottomNavigation />
+        <EmergencyButton />
       </div>
     </div>
   );

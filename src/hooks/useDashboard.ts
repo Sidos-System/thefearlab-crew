@@ -1,29 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import useRealtimeData from "@/hooks/useRealtimeData";
 import { getDashboardStats } from "@/services/dashboard";
 
 export default function useDashboard() {
-  const [stats, setStats] = useState({
+  const { data } = useRealtimeData(getDashboardStats, {
     teamOnline: 0,
     tasks: 0,
     documents: 0,
     emergencies: 0,
     inventory: 0,
-  });
+  }, [
+    "profiles",
+    "tasks",
+    "documents",
+    "emergencies",
+    "inventory",
+  ]);
 
-  useEffect(() => {
-    async function load() {
-      const data = await getDashboardStats();
-      setStats(data);
-    }
-
-    load();
-
-    const interval = setInterval(load, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return stats;
+  return data;
 }

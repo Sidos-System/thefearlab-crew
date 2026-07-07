@@ -3,15 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { bottomNavigationItems } from "@/config/navigation";
+import usePermissions from "@/hooks/usePermissions";
 import { cn } from "@/lib/utils";
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+  const { can, loading } = usePermissions();
+  const items = bottomNavigationItems.filter((item) => (
+    !item.permission || (!loading && can(item.permission))
+  )).slice(0, 5);
 
   return (
     <nav className="fixed bottom-4 left-4 right-4 z-40 lg:hidden">
       <div className="mx-auto grid max-w-md grid-cols-5 rounded-[24px] border border-white/10 bg-surface-1/88 p-2 shadow-[0_24px_70px_rgba(0,0,0,0.48)] backdrop-blur-2xl">
-        {bottomNavigationItems.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon;
           const active =
             pathname === item.href || pathname.startsWith(`${item.href}/`);

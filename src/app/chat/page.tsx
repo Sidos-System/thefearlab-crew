@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Hash, MessageCircle, Paperclip, Send } from "lucide-react";
+import { FormEvent, useMemo, useState } from "react";
+import { Hash, MessageCircle, Send } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
+import PermissionGate from "@/components/auth/PermissionGate";
 import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
@@ -11,8 +12,11 @@ import EmptyState from "@/components/ui/EmptyState";
 import Input from "@/components/ui/Input";
 import Skeleton from "@/components/ui/Skeleton";
 import { useChatChannels, useChatMessages } from "@/hooks/usePlatformData";
+import usePermissions from "@/hooks/usePermissions";
+import useProfile from "@/hooks/useProfile";
 import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { sendChatMessage } from "@/services/platform";
 
 export default function ChatPage() {
   const {
@@ -24,6 +28,11 @@ export default function ChatPage() {
     loading: messagesLoading,
   } = useChatMessages();
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const [messageBody, setMessageBody] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const { profile } = useProfile();
+  const { can } = usePermissions();
 
   const effectiveChannelId = selectedChannelId ?? channels[0]?.id ?? null;
   const selectedChannel = channels.find((channel) => channel.id === effectiveChannelId);
@@ -33,12 +42,47 @@ export default function ChatPage() {
       : messages
   ), [messages, effectiveChannelId]);
 
+  async function submitMessage(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!effectiveChannelId || !messageBody.trim()) {
+      return;
+    }
+
+    setSending(true);
+    setError("");
+
+    const result = await sendChatMessage({
+      channelId: effectiveChannelId,
+      body: messageBody.trim(),
+      authorName: profile?.full_name ?? "Crew",
+    });
+
+    setSending(false);
+
+    if (!result.ok) {
+      setError(result.error ?? "Nachricht konnte nicht gesendet werden.");
+      return;
+    }
+
+    setMessageBody("");
+  }
+
   return (
     <AppShell
       title="Chat"
       subtitle="Kanäle, Direktnachrichten und Dateien"
     >
-      <div className="grid min-h-[680px] gap-6 xl:grid-cols-[280px_1fr]">
+      <PermissionGate
+        fallback={(
+          <EmptyState
+            text="Dein Account besitzt keine Berechtigung für den Chat."
+            title="Kein Zugriff"
+          />
+        )}
+        permission="chat.read"
+      >
+        <div className="grid min-h-[680px] gap-6 xl:grid-cols-[280px_1fr]">
         <Card
           className="space-y-3"
           padding="sm"
@@ -132,31 +176,36 @@ export default function ChatPage() {
           </div>
 
           <div className="border-t border-border-soft p-5">
-            <div className="flex gap-3">
-              <Button
-                aria-label="Datei anhängen"
-                disabled={!selectedChannel}
-                size="icon"
-                variant="secondary"
+            {error && (
+              <div className="mb-4 rounded-[18px] border border-accent/25 bg-accent/10 p-4 text-sm text-red-100">
+                {error}
+              </div>
+            )}
+            {selectedChannel && can("chat.write") && (
+              <form
+                className="flex gap-3"
+                onSubmit={submitMessage}
               >
-                <Paperclip size={18} />
-              </Button>
-              <Input
-                className="flex-1"
-                disabled={!selectedChannel}
-                placeholder="Nachricht schreiben..."
-              />
-              <Button
-                aria-label="Nachricht senden"
-                disabled={!selectedChannel}
-                size="icon"
-              >
-                <Send size={18} />
-              </Button>
-            </div>
+                <Input
+                  className="flex-1"
+                  onChange={(event) => setMessageBody(event.target.value)}
+                  placeholder="Nachricht schreiben..."
+                  value={messageBody}
+                />
+                <Button
+                  aria-label="Nachricht senden"
+                  disabled={sending}
+                  size="icon"
+                  type="submit"
+                >
+                  <Send size={18} />
+                </Button>
+              </form>
+            )}
           </div>
         </Card>
-      </div>
+        </div>
+      </PermissionGate>
     </AppShell>
   );
 }

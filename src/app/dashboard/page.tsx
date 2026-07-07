@@ -25,6 +25,7 @@ import Skeleton from "@/components/ui/Skeleton";
 import useDashboard from "@/hooks/useDashboard";
 import {
   useChatMessages,
+  useEmergencies,
   useEvents,
   useProfiles,
   useTasks,
@@ -39,6 +40,7 @@ export default function DashboardPage() {
   const { data: profiles, loading: profilesLoading } = useProfiles();
   const { data: events, loading: eventsLoading } = useEvents();
   const { data: messages, loading: messagesLoading } = useChatMessages();
+  const { data: emergencies } = useEmergencies();
 
   const activeEvent = events[0];
   const completedTasks = tasks.filter((task) => task.status === "Erledigt").length;
@@ -93,6 +95,25 @@ export default function DashboardPage() {
           daysUntilEvent={daysUntilEvent}
           readiness={readiness}
         />
+
+        <section>
+          {emergencies.filter((emergency) => emergency.active).length > 0 && (
+            <Card className="border-accent/35 bg-accent/10">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <Badge variant="accent">Notruf aktiv</Badge>
+                  <h2 className="mt-3 text-2xl font-black">
+                    Aktive Notfallmeldung
+                  </h2>
+                  <p className="mt-1 text-sm text-text-muted">
+                    Die Einsatzleitung sollte den Notruf im Admin Center prüfen.
+                  </p>
+                </div>
+                <Siren className="text-red-100" size={32} />
+              </div>
+            </Card>
+          )}
+        </section>
 
         <section>
           <SectionTitle

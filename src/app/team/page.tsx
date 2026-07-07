@@ -1,7 +1,7 @@
 "use client";
 
 import AppShell from "@/components/layout/AppShell";
-import AddMemberButton from "@/components/team/AddMemberButton";
+import PermissionGate from "@/components/auth/PermissionGate";
 import TeamMemberCard from "@/components/team/TeamMemberCard";
 import TeamSearch from "@/components/team/TeamSearch";
 import EmptyState from "@/components/ui/EmptyState";
@@ -19,10 +19,18 @@ export default function TeamPage() {
       title="Team"
       subtitle="Crewverwaltung"
     >
-      <div className="space-y-8">
+      <PermissionGate
+        fallback={(
+          <EmptyState
+            text="Dein Account besitzt keine Berechtigung für die Crewverwaltung."
+            title="Kein Zugriff"
+          />
+        )}
+        permission="crew.read"
+      >
+        <div className="space-y-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <TeamSearch />
-          <AddMemberButton />
         </div>
 
         {loading ? (
@@ -48,7 +56,8 @@ export default function TeamPage() {
             title="Keine Crewprofile"
           />
         )}
-      </div>
+        </div>
+      </PermissionGate>
     </AppShell>
   );
 }

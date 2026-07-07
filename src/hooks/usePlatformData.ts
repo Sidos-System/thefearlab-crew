@@ -4,37 +4,47 @@ import {
   getChatChannels,
   getChatMessages,
   getDocuments,
+  getEmergencies,
+  getEmergencyLocations,
   getEvents,
   getInventoryItems,
   getProfiles,
   getTasks,
 } from "@/services/platform";
-import useAsyncData from "@/hooks/useAsyncData";
+import useRealtimeData from "@/hooks/useRealtimeData";
 
 export function useProfiles() {
-  return useAsyncData(getProfiles, [], 15000);
+  return useRealtimeData(getProfiles, [], ["profiles", "roles"]);
 }
 
 export function useTasks() {
-  return useAsyncData(getTasks, [], 15000);
+  return useRealtimeData(getTasks, [], ["tasks"]);
 }
 
 export function useDocuments() {
-  return useAsyncData(getDocuments, [], 30000);
+  return useRealtimeData(getDocuments, [], ["documents"]);
 }
 
 export function useInventoryItems() {
-  return useAsyncData(getInventoryItems, [], 30000);
+  return useRealtimeData(getInventoryItems, [], ["inventory"]);
 }
 
 export function useChatChannels() {
-  return useAsyncData(getChatChannels, [], 10000);
+  return useRealtimeData(getChatChannels, [], ["chat_channels"]);
 }
 
 export function useChatMessages() {
-  return useAsyncData(getChatMessages, [], 5000);
+  return useRealtimeData(getChatMessages, [], ["chat_messages"]);
 }
 
 export function useEvents() {
-  return useAsyncData(getEvents, [], 30000);
+  return useRealtimeData(getEvents, [], ["events"]);
+}
+
+export function useEmergencyLocations() {
+  return useRealtimeData(getEmergencyLocations, [], ["emergency_locations"]);
+}
+
+export function useEmergencies() {
+  return useRealtimeData(getEmergencies, [], ["emergencies"]);
 }

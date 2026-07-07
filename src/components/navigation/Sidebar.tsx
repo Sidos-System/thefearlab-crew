@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
 import { navigationItems, settingsNavigationItem } from "@/config/navigation";
+import usePermissions from "@/hooks/usePermissions";
 import useProfile from "@/hooks/useProfile";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const SettingsIcon = settingsNavigationItem.icon;
   const { profile } = useProfile();
+  const { can, loading: permissionsLoading } = usePermissions();
   const profileName = profile?.full_name ?? "Crew";
   const profileRole = profile?.role ?? "Crew";
   const profileStatus = profile?.online ? "online" : "offline";
@@ -43,7 +45,9 @@ export default function Sidebar() {
 
       <nav className="flex-1 px-4 py-3">
         <div className="space-y-1.5">
-          {navigationItems.map((item) => {
+          {navigationItems.filter((item) => (
+            !item.permission || (!permissionsLoading && can(item.permission))
+          )).map((item) => {
             const Icon = item.icon;
             const active =
               pathname === item.href || pathname.startsWith(`${item.href}/`);

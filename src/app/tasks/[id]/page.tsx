@@ -1,22 +1,32 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { CalendarClock, MapPin, UserRound, type LucideIcon } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
 import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import EmptyState from "@/components/ui/EmptyState";
 import Section from "@/components/ui/Section";
 import Skeleton from "@/components/ui/Skeleton";
 import { useTasks } from "@/hooks/usePlatformData";
+import usePermissions from "@/hooks/usePermissions";
 import { formatDateTime } from "@/lib/format";
+import {
+  deleteTask,
+  updateTask,
+} from "@/services/platform";
 
 export default function TaskDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const {
     data: tasks,
     loading,
+    refresh,
   } = useTasks();
+  const { can } = usePermissions();
   const task = tasks.find((item) => item.id === params.id);
   const informationItems: Array<{
     label: string;
@@ -47,6 +57,22 @@ export default function TaskDetailPage() {
     ]
     : [];
 
+  async function completeTask() {
+    if (!task) return;
+
+    await updateTask(task.id, {
+      status: "Erledigt",
+    });
+    refresh();
+  }
+
+  async function removeTask() {
+    if (!task) return;
+
+    await deleteTask(task.id);
+    router.push("/tasks");
+  }
+
   return (
     <AppShell
       title="Aufgabe"
@@ -73,7 +99,25 @@ export default function TaskDetailPage() {
                 )}
               </div>
 
-              {task.status && <Badge>{task.status}</Badge>}
+              <div className="flex flex-wrap gap-2">
+                {task.status && <Badge>{task.status}</Badge>}
+                {can("tasks.edit") && task.status !== "Erledigt" && (
+                  <Button
+                    onClick={completeTask}
+                    variant="secondary"
+                  >
+                    Abschließen
+                  </Button>
+                )}
+                {can("tasks.delete") && (
+                  <Button
+                    onClick={removeTask}
+                    variant="secondary"
+                  >
+                    Löschen
+                  </Button>
+                )}
+              </div>
             </div>
           </Card>
 
